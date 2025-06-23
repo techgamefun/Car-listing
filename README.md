@@ -192,7 +192,7 @@ Authorization: Bearer <accessToken>
 
 ### 4. Get All Cars
 
-**Endpoint:** `GET /api/car/allcars/get`
+**Endpoint:** `GET /api/car/allcars`
 
 **Description:** Retrieve all car listings with pagination
 

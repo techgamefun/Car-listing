@@ -3,10 +3,12 @@ import dotenv from "dotenv";
 import { connectDB } from "./config/db.config.js";
 import authRoutes from "./routes/auth.route.js";
 import carRoutes from "./routes/car.route.js";
+import cors from "cors";
 
 dotenv.config();
 connectDB();
 const app = express();
+app.use(cors());
 
 app.use(express.json());
 
