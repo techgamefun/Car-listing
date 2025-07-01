@@ -1,14 +1,32 @@
 import Car from "../model/car.model.js";
+import CloudinaryHelper from "../util/CloudinaryHelper.js";
 
 export const createCar = async (req, res, next) => {
   try {
-    const { brand, model, price, status } = req.body;
+    const { brand, model, color, year, vin, price, status } = req.body;
 
-    if (!brand || !model || !price) {
+    if (!brand || !model || !price || !year || !vin) {
       return res.status(400).json({ message: "All fields are required." });
     }
 
-    const newCar = new Car({ brand, model, price, status });
+    const images = [];
+
+    for (const file of req.files) {
+      const result = await CloudinaryHelper.uploadSingle(file.buffer);
+      carimages.push({ url: result.secure_url, publicId: result.public_id });
+    }
+
+    const newCar = new Car({
+      brand,
+      model,
+      images,
+      color,
+      year,
+      vin,
+      price,
+      status,
+    });
+
     await newCar.save();
 
     res.status(200).json(newCar);
@@ -18,7 +36,7 @@ export const createCar = async (req, res, next) => {
   }
 };
 
-export const allcars = async (req, res, next) => {
+export const allCars = async (req, res, next) => {
   try {
     // 1. Extract pagination & sorting query params
     const page = parseInt(req.query.page) || 1;
@@ -52,4 +70,19 @@ export const allcars = async (req, res, next) => {
       message: "Failed to fetch cars",
     });
   }
+};
+
+export const getCarByid = async (req, res, next) => {
+  try {
+  } catch (error) {}
+};
+
+export const editCar = async (req, res, next) => {
+  try {
+  } catch (error) {}
+};
+
+export const deleteCar = async (req, res, next) => {
+  try {
+  } catch (error) {}
 };

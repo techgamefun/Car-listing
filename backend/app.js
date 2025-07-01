@@ -17,6 +17,6 @@ app.get("/", (req, res) => {
 });
 
 app.use("/api/auth", authRoutes);
-app.use("/api/car", carRoutes);
+app.use("/api/cars", carRoutes);
 
 app.listen(process.env.PORT);
