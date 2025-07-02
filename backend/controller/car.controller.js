@@ -14,7 +14,7 @@ export const createCar = async (req, res, next) => {
 
     for (const file of req.files) {
       const result = await CloudinaryHelper.uploadSingle(file.buffer);
-      carimages.push({ url: result.secure_url, publicId: result.public_id });
+      images.push({ url: result.secure_url, publicId: result.public_id });
     }
 
     const newCar = new Car({
@@ -85,5 +85,9 @@ export const editCar = async (req, res, next) => {
 
 export const deleteCar = async (req, res, next) => {
   try {
+    const { id } = req.params;
+    const response = await Car.findByIdAndDelete(id);
+
+    res.status(200).json({ message: "deleted successfully" });
   } catch (error) {}
 };

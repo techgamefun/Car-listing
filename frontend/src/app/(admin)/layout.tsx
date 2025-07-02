@@ -14,7 +14,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="grid grid-cols-12 h-screen">
-        <header className="md:col-span-2">
+        <header className="md:col-span-2 ">
           <div className="hidden md:flex h-full w-full p-2 bg-gray-600 text-white flex-col justify-between">
             <nav>
               <ul className="flex flex-col gap-4">
@@ -42,7 +42,9 @@ export default function RootLayout({
             </div>
           </div>
         </header>
-        <div className="md:col-span-10 col-span-12">{children}</div>
+        <div className="md:col-span-10 col-span-12 overflow-y-scroll">
+          {children}
+        </div>
       </body>
     </html>
   );

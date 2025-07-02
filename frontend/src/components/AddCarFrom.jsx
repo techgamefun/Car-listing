@@ -5,9 +5,10 @@ import { useForm } from "react-hook-form";
 import Image from "next/image";
 import API from "@/util/axios";
 
-export default function AddCarFrom() {
+export default function AddCarFrom({}) {
   // Single state to manage both files and their display URLs
   const [imageFiles, setImageFiles] = useState([]);
+  const [submitting, isSubmitting] = useState(false);
   const inputImageRef = useRef(null);
 
   const {
@@ -65,8 +66,9 @@ export default function AddCarFrom() {
   };
 
   const onSubmit = async (data) => {
+    isSubmitting(true);
     const formData = new FormData();
-    
+
     formData.append("brand", data.brand);
     formData.append("model", data.model);
     formData.append("color", data.color);
@@ -83,15 +85,17 @@ export default function AddCarFrom() {
     }
 
     try {
-      const response = API.post("/cars", formData, {
+      const response = await API.post("/cars", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
       });
 
       console.log("Upload success:", response.data);
+      isSubmitting(false);
     } catch (error) {
       console.log(error);
+      isSubmitting(false);
     }
   };
 
@@ -109,6 +113,36 @@ export default function AddCarFrom() {
       onSubmit={handleSubmit(onSubmit)}
       className="grid md:grid-cols-2 gap-2 p-4 bg-gray-100 h-full"
     >
+      {submitting && (
+        <div className="fixed inset-0 bg-white bg-opacity-75 z-50 flex items-center justify-center">
+          <div className="text-center">
+            <svg
+              className="animate-spin h-8 w-8 text-red-600 mx-auto mb-4"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                className="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                strokeWidth="4"
+              ></circle>
+              <path
+                className="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8v8z"
+              ></path>
+            </svg>
+            <p className="text-gray-700 font-semibold text-lg">
+              Uploading car details...
+            </p>
+          </div>
+        </div>
+      )}
+
       <div className="col-span-1 flex flex-col gap-2">
         <div className="h-full w-full rounded-md border-1 border-gray-300 p-2 flex flex-col gap-1 bg-white">
           <label>Brand</label>
@@ -213,7 +247,6 @@ export default function AddCarFrom() {
           )}
         </div>
       </div>
-
       <div className="col-span-1 flex flex-col gap-2 justify-between">
         <div className="w-full border border-gray-300 bg-white p-2 rounded-md">
           <div className="grid grid-cols-2 md:grid-cols-5 gap-2 mb-2">
