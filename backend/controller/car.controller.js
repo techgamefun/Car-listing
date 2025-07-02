@@ -2,6 +2,7 @@ import Car from "../model/car.model.js";
 import CloudinaryHelper from "../util/CloudinaryHelper.js";
 
 export const createCar = async (req, res, next) => {
+  console.log(req.body);
   try {
     const { brand, model, color, year, vin, price, status } = req.body;
 
