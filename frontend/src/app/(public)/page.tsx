@@ -1,7 +1,11 @@
+import CarList from "@/components/carlists";
+
 export default function Home() {
   return (
     <>
-      <h1>Home Page</h1>
+      <section>
+        <CarList />
+      </section>
     </>
   );
 }

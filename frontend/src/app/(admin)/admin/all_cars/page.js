@@ -43,7 +43,7 @@ export default function AllCarsPage() {
   };
 
   return (
-    <section className="w-full h-full py-2 bg-gray-100">
+    <section className="w-full h-screen py-2 bg-gray-100">
       {showForm ? (
         // <div className=" w-full">
         <AddCarForm car={editingCar} setShowForm={setShowForm} />
@@ -137,7 +137,7 @@ export default function AllCarsPage() {
 
                 <div className="flex gap-2 pt-2">
                   <button
-                    onClick={() => handleDelete(car._id)}
+                    onClick={() => handleEdit(car)}
                     className="cursor-pointer flex-1 bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg text-sm font-medium"
                   >
                     Edit
