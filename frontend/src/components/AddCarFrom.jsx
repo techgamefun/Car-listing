@@ -1,13 +1,27 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import Image from "next/image";
 import API from "@/util/axios";
 
-export default function AddCarFrom({}) {
-  // Single state to manage both files and their display URLs
-  const [imageFiles, setImageFiles] = useState([]);
+export default function AddCarForm({ car, setShowForm }) {
+  const {
+    _id = "",
+    brand = "",
+    model = "",
+    color = "",
+    year = "",
+    vin = "",
+    price = "",
+    status = "",
+    images = [],
+  } = car || {};
+
+  // State for managing all image operations
+  const [existingImages, setExistingImages] = useState(images); // Images from database
+  const [newImages, setNewImages] = useState([]); // Newly uploaded images
+  const [imagesToDelete, setImagesToDelete] = useState([]); // Images to delete from database
   const [submitting, isSubmitting] = useState(false);
   const inputImageRef = useRef(null);
 
@@ -19,6 +33,13 @@ export default function AddCarFrom({}) {
     clearErrors,
   } = useForm();
 
+  // Initialize existing images when component mounts or car changes
+  useEffect(() => {
+    if (_id && images.length > 0) {
+      setExistingImages(images);
+    }
+  }, [_id, images]);
+
   const handleShowImage = (e) => {
     const files = Array.from(e.target.files);
 
@@ -29,15 +50,15 @@ export default function AddCarFrom({}) {
       url: URL.createObjectURL(file), // URL for display
     }));
 
-    const updatedFiles = [...imageFiles, ...newImageFiles];
-    setImageFiles(updatedFiles);
+    const updatedNewImages = [...newImages, ...newImageFiles];
+    setNewImages(updatedNewImages);
 
     // Update the form field with actual File objects
-    const fileObjects = updatedFiles.map((item) => item.file);
+    const fileObjects = updatedNewImages.map((item) => item.file);
     setValue("images", fileObjects);
 
     // Clear any validation errors since we now have files
-    if (fileObjects.length > 0) {
+    if (fileObjects.length > 0 || existingImages.length > 0) {
       clearErrors("images");
     }
 
@@ -45,22 +66,33 @@ export default function AddCarFrom({}) {
     e.target.value = null;
   };
 
-  const handleDelete = (idToDelete) => {
-    // Clean up the URL to prevent memory leaks
-    const imageToDelete = imageFiles.find((img) => img.id === idToDelete);
+  const handleDeleteExistingImage = (imageId) => {
+    // Find the image to delete
+    const imageToDelete = existingImages.find((img) => img._id === imageId);
+    if (imageToDelete) {
+      // Add to delete list
+      setImagesToDelete((prev) => [...prev, imageToDelete]);
+      // Remove from existing images
+      setExistingImages((prev) => prev.filter((img) => img._id !== imageId));
+    }
+  };
+
+  const handleDeleteNewImage = (imageId) => {
+    // Find and revoke URL to prevent memory leaks
+    const imageToDelete = newImages.find((img) => img.id === imageId);
     if (imageToDelete) {
       URL.revokeObjectURL(imageToDelete.url);
     }
 
-    const updatedFiles = imageFiles.filter((img) => img.id !== idToDelete);
-    setImageFiles(updatedFiles);
+    const updatedNewImages = newImages.filter((img) => img.id !== imageId);
+    setNewImages(updatedNewImages);
 
     // Update form field with remaining files
-    const fileObjects = updatedFiles.map((item) => item.file);
+    const fileObjects = updatedNewImages.map((item) => item.file);
     setValue("images", fileObjects.length > 0 ? fileObjects : null);
 
     // Reset input if no files remain
-    if (updatedFiles.length === 0 && inputImageRef.current) {
+    if (updatedNewImages.length === 0 && inputImageRef.current) {
       inputImageRef.current.value = null;
     }
   };
@@ -77,7 +109,12 @@ export default function AddCarFrom({}) {
     formData.append("price", data.price);
     formData.append("status", data.status);
 
-    // Add images to FormData - this will now work correctly
+    // Add images to delete (serialize as JSON)
+    if (imagesToDelete.length > 0) {
+      formData.append("imagesToDelete", JSON.stringify(imagesToDelete));
+    }
+
+    // Add new images to FormData
     if (data.images && data.images.length > 0) {
       for (let i = 0; i < data.images.length; i++) {
         formData.append("images", data.images[i]);
@@ -85,14 +122,25 @@ export default function AddCarFrom({}) {
     }
 
     try {
-      const response = await API.post("/cars", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      let response;
+
+      if (!_id) {
+        response = await API.post("/cars", formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        });
+      } else {
+        response = await API.put(`/cars/${_id}`, formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        });
+      }
 
       console.log("Upload success:", response.data);
       isSubmitting(false);
+      setShowForm(false);
     } catch (error) {
       console.log(error);
       isSubmitting(false);
@@ -100,13 +148,16 @@ export default function AddCarFrom({}) {
   };
 
   // Cleanup URLs when component unmounts to prevent memory leaks
-  React.useEffect(() => {
+  useEffect(() => {
     return () => {
-      imageFiles.forEach((image) => {
+      newImages.forEach((image) => {
         URL.revokeObjectURL(image.url);
       });
     };
-  }, []);
+  }, [newImages]);
+
+  // Check if we have any images (existing or new)
+  const hasImages = existingImages.length > 0 || newImages.length > 0;
 
   return (
     <form
@@ -137,7 +188,7 @@ export default function AddCarFrom({}) {
               ></path>
             </svg>
             <p className="text-gray-700 font-semibold text-lg">
-              Uploading car details...
+              {_id ? "Updating car details..." : "Uploading car details..."}
             </p>
           </div>
         </div>
@@ -149,6 +200,7 @@ export default function AddCarFrom({}) {
           <input
             type="text"
             className="border border-gray-300 rounded-md p-1"
+            defaultValue={_id ? brand : ""}
             {...register("brand", { required: "Brand is required" })}
           />
           {errors.brand && (
@@ -161,6 +213,7 @@ export default function AddCarFrom({}) {
           <input
             type="text"
             className="border border-gray-300 rounded-md p-1"
+            defaultValue={_id ? model : ""}
             {...register("model", { required: "Model is required" })}
           />
           {errors.model && (
@@ -173,6 +226,7 @@ export default function AddCarFrom({}) {
           <input
             type="text"
             className="border border-gray-300 rounded-md p-1"
+            defaultValue={_id ? color : ""}
             {...register("color", { required: "Color is required" })}
           />
           {errors.color && (
@@ -185,6 +239,7 @@ export default function AddCarFrom({}) {
           <select
             {...register("year", { required: "Year is required" })}
             className="w-full p-1 border border-gray-300 rounded"
+            defaultValue={_id ? year : ""}
           >
             <option value="">Select year</option>
             {Array.from({ length: 40 }, (_, i) => {
@@ -206,6 +261,7 @@ export default function AddCarFrom({}) {
           <input
             type="text"
             className="border border-gray-300 rounded-md p-1"
+            defaultValue={_id ? vin : ""}
             {...register("vin", { required: "VIN is required" })}
           />
           {errors.vin && (
@@ -219,6 +275,7 @@ export default function AddCarFrom({}) {
             type="number"
             step="0.01"
             className="border border-gray-300 rounded-md p-1"
+            defaultValue={_id ? price : ""}
             {...register("price", {
               required: "Price is required",
               min: { value: 0, message: "Price must be positive" },
@@ -234,6 +291,7 @@ export default function AddCarFrom({}) {
           <select
             className="w-full p-1 border border-gray-300 rounded"
             {...register("status", { required: "Status is required" })}
+            defaultValue={_id ? status : ""}
           >
             <option value="">Select status</option>
             <option value="available">Available</option>
@@ -247,30 +305,69 @@ export default function AddCarFrom({}) {
           )}
         </div>
       </div>
+
       <div className="col-span-1 flex flex-col gap-2 justify-between">
         <div className="w-full border border-gray-300 bg-white p-2 rounded-md">
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-2 mb-2">
-            {imageFiles.map((image) => (
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-2 mb-2">
+            {/* Existing Images */}
+            {existingImages.map((image) => (
+              <div
+                key={image._id}
+                className="group relative w-full h-32 rounded-md border border-gray-300 overflow-hidden"
+              >
+                <Image
+                  alt={`Existing car image ${image._id}`}
+                  src={image.url}
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                />
+                <button
+                  type="button"
+                  onClick={() => handleDeleteExistingImage(image._id)}
+                  className="absolute top-2 right-2 bg-red-600 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                >
+                  ✕
+                </button>
+                <div className="absolute bottom-1 left-1 bg-blue-600 text-white text-xs px-1 py-0.5 rounded">
+                  Existing
+                </div>
+              </div>
+            ))}
+
+            {/* New Images */}
+            {newImages.map((image) => (
               <div
                 key={image.id}
                 className="group relative w-full h-32 rounded-md border border-gray-300 overflow-hidden"
               >
                 <Image
-                  alt={`Car image ${image.id}`}
+                  alt={`New car image ${image.id}`}
                   src={image.url}
                   fill
                   className="object-cover"
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                 />
                 <button
                   type="button"
-                  onClick={() => handleDelete(image.id)}
+                  onClick={() => handleDeleteNewImage(image.id)}
                   className="absolute top-2 right-2 bg-red-600 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200"
                 >
                   ✕
                 </button>
+                <div className="absolute bottom-1 left-1 bg-green-600 text-white text-xs px-1 py-0.5 rounded">
+                  New
+                </div>
               </div>
             ))}
           </div>
+
+          {/* Images to be deleted notification */}
+          {imagesToDelete.length > 0 && (
+            <div className="mb-2 p-2 bg-red-50 border border-red-200 rounded text-sm text-red-700">
+              {imagesToDelete.length} image(s) will be deleted on save
+            </div>
+          )}
 
           <div className="w-full h-32 rounded-md bg-gray-200 border border-gray-300 flex items-center justify-center">
             <label className="cursor-pointer h-full w-full flex items-center justify-center text-center">
@@ -286,21 +383,41 @@ export default function AddCarFrom({}) {
             </label>
           </div>
 
-          {errors.images && (
+          {!hasImages && (
             <span className="text-red-500 text-sm block mt-2">
-              {errors.images.message}
+              At least one image is required
             </span>
           )}
         </div>
 
-        <div className="flex justify-end p-4">
-          <button
-            type="submit"
-            className="bg-red-600 py-2 px-4 rounded-md text-white cursor-pointer hover:bg-red-700 transition-colors"
-          >
-            Submit
-          </button>
-        </div>
+        {_id ? (
+          <div className="flex justify-end p-4 gap-4">
+            <button
+              type="submit"
+              disabled={submitting}
+              className="bg-green-500 py-2 px-4 rounded-md text-white cursor-pointer hover:bg-green-700 transition-colors disabled:bg-gray-400"
+            >
+              {submitting ? "Updating..." : "Update"}
+            </button>
+            <button
+              type="button"
+              onClick={() => setShowForm(false)}
+              className="bg-red-500 py-2 px-4 rounded-md text-white cursor-pointer hover:bg-red-700 transition-colors"
+            >
+              Cancel
+            </button>
+          </div>
+        ) : (
+          <div className="flex justify-end p-4">
+            <button
+              type="submit"
+              disabled={submitting}
+              className="bg-red-500 py-2 px-4 rounded-md text-white cursor-pointer hover:bg-red-700 transition-colors disabled:bg-gray-400"
+            >
+              {submitting ? "Submitting..." : "Submit"}
+            </button>
+          </div>
+        )}
       </div>
     </form>
   );
