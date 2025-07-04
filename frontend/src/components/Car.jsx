@@ -28,7 +28,7 @@ export default function Car({ carData }) {
         image: carData.images?.map((img) => img.url) || [],
         description: `${carData.brand} ${carData.model} ${carData.year} in ${carData.color} color`,
         vehicleConfiguration: "Used Car",
-        url: `https://yourdomain.com/car/${carData._id}`, // Replace with your actual domain and dynamic ID if needed
+        url: `https://car-listing-next-js.vercel.app/car/${carData._id}`, // Replace with your actual domain and dynamic ID if needed
       }
     : null;
 
