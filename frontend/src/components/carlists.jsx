@@ -30,10 +30,10 @@ export default function CarList() {
   }, []);
 
   return (
-    <div className="grid md:grid-cols-4 grid-cols-1 h-full w-full gap-2 p-2">
+    <div className="grid md:grid-cols-4 grid-cols-1 w-full gap-8 md:gap-4 p-2 ">
       {cars?.map((car) => (
         <div
-          className="w-full max-w-sm rounded overflow-hidden shadow-lg flex flex-col justify-between"
+          className="w-full max-w-sm rounded-md overflow-hidden shadow-md flex flex-col justify-between bg-gray-100"
           key={car._id}
         >
           <div className="relative w-full h-64 sm:h-60 md:h-56 lg:h-64 xl:h-72 overflow-hidden">

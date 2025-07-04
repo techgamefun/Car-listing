@@ -1,8 +1,6 @@
 import "@/app/globals.css";
 import Link from "next/link";
 import Logout from "@/components/logoutBtn";
-import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
 import AuthGuard from "@/components/AuthGuard";
 
 export const metadata = {
@@ -14,7 +12,7 @@ export default async function RootLayout({ children }) {
   return (
     <AuthGuard>
       <div className="md:grid grid-cols-12 h-screen">
-        <header className="md:col-span-2 ">
+        <header className="md:col-span-2">
           {/* Desktop navbar */}
           <div className="hidden md:flex h-full w-full p-2 bg-gray-600 text-white flex-col justify-between">
             <nav>
@@ -40,23 +38,35 @@ export default async function RootLayout({ children }) {
               <Logout />
             </div>
           </div>
-          {/* mobile navbar */}
-          <div className="md:hidden bottom-4 left-1/2 -translate-x-1/2 fixed bg-black text-white z-20  rounded-2xl">
+
+          {/* Mobile navbar */}
+          <div className="md:hidden bottom-4 left-1/2 -translate-x-1/2 fixed bg-black text-white z-20 rounded-2xl px-4 py-2">
             <nav>
               <ul className="flex justify-center items-center text-nowrap gap-4">
                 <Link href="/admin/dashboard">
-                  <li className=" border-gray-300 rounded-md p-4">Dashboard</li>
+                  <li className="border-gray-300 rounded-md p-4">Dashboard</li>
                 </Link>
                 <Link href="/admin/add_car">
-                  <li className=" border-gray-300 rounded-md p-4">Add Car</li>
+                  <li className="border-gray-300 rounded-md p-4">Add Car</li>
                 </Link>
                 <Link href="/admin/all_cars">
-                  <li className=" border-gray-300 rounded-md p-4">All Cars</li>
+                  <li className="border-gray-300 rounded-md p-4">All Cars</li>
                 </Link>
               </ul>
+
+              {/* Toggleable Logout using <details> */}
+              <details className="mt-2 w-full text-center">
+                <summary className="cursor-pointer text-gray-300 hover:text-white p-2">
+                  Logout
+                </summary>
+                <div className="mt-2 flex justify-center">
+                  <Logout />
+                </div>
+              </details>
             </nav>
           </div>
         </header>
+
         <div className="md:col-span-10 col-span-12 bg-gray-100 overflow-y-scroll">
           {children}
         </div>

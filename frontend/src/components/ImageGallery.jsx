@@ -18,7 +18,7 @@ export default function ImageGallery({ images, carBrand, carModel }) {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 md:p-8">
       {/* Main Image Display */}
       <div className="relative bg-gray-100 rounded-lg overflow-hidden">
         <div className="relative h-80 sm:h-96 lg:h-[500px]">

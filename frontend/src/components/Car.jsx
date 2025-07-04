@@ -44,7 +44,7 @@ export default function Car({ carData }) {
         />
       )}
 
-      <div className="max-w-7xl mx-auto p-4 sm:p-6">
+      <div className="max-w-7xl mx-auto p-4 sm:p-6 bg-gradient-to-br from-gray-900 via-blue-900 to-black md:min-h-screen md:min-w-screen">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
           {/* Image Section - Now handled by ImageGallery Client Component */}
           <ImageGallery
@@ -57,10 +57,10 @@ export default function Car({ carData }) {
           <div className="space-y-6">
             {/* Header */}
             <div>
-              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-2">
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-100 mb-2">
                 {carData.brand} {carData.model}
               </h1>
-              <p className="text-lg text-gray-600">{carData.year}</p>
+              <p className="text-lg text-gray-300">{carData.year}</p>
             </div>
 
             {/* Price and Status */}
@@ -69,7 +69,7 @@ export default function Car({ carData }) {
                 <p className="text-3xl sm:text-4xl font-bold text-blue-600">
                   ₹{carData.price?.toLocaleString()}
                 </p>
-                <p className="text-sm text-gray-500 mt-1">*Ex-showroom price</p>
+                <p className="text-sm text-gray-400 mt-1">*Ex-showroom price</p>
               </div>
               <span
                 className={`inline-block px-4 py-2 text-sm font-medium rounded-full ${
@@ -96,18 +96,18 @@ export default function Car({ carData }) {
 
             {/* Secondary Actions */}
             <div className="flex gap-3">
-              <button className="flex-1 border border-gray-300 text-gray-700 font-medium py-3 px-6 rounded-lg hover:bg-gray-50 transition duration-200 flex items-center justify-center gap-2">
+              <button className="flex-1 border border-gray-300 text-gray-400 font-medium py-3 px-6 rounded-lg hover:bg-gray-50 transition duration-200 flex items-center justify-center gap-2">
                 <Heart className="w-5 h-5" />
                 Save
               </button>
-              <button className="flex-1 border border-gray-300 text-gray-700 font-medium py-3 px-6 rounded-lg hover:bg-gray-50 transition duration-200 flex items-center justify-center gap-2">
+              <button className="flex-1 border border-gray-300 text-gray-400 font-medium py-3 px-6 rounded-lg hover:bg-gray-50 transition duration-200 flex items-center justify-center gap-2">
                 <Share2 className="w-5 h-5" />
                 Share
               </button>
             </div>
 
             {/* Car Details */}
-            <div className="bg-gray-50 rounded-lg p-6">
+            <div className="bg-gray-100 rounded-lg p-6">
               <h3 className="text-lg font-semibold text-gray-800 mb-4">
                 Car Details
               </h3>

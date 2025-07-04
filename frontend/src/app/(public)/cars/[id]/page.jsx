@@ -3,6 +3,51 @@ import Car from "../../../../components/Car"; // Import the Car Server Component
 
 // We don't need "use client" here anymore, as this will be a Server Component
 
+export async function generateMetadata({ params }) {
+  const carId = params.id.split("-").pop();
+
+  try {
+    const response = await API.get(`/cars/${carId}`);
+    const car = response.data.car;
+
+    if (!car) {
+      return {
+        title: "Car Not Found | Car Inventory App",
+        description: "The car you're looking for does not exist.",
+      };
+    }
+
+    return {
+      title: `${car.brand} ${car.model} (${car.year}) | Car Inventory`,
+      description: `Get a ${car.color} ${car.brand} ${car.model} (${
+        car.year
+      }) for ₹${car.price.toLocaleString()}. View specs, features, and contact now!`,
+      openGraph: {
+        title: `${car.brand} ${car.model} (${car.year}) | Car Inventory`,
+        description: `Explore this ${car.color} ${car.brand} ${
+          car.model
+        }, available for ₹${car.price.toLocaleString()}.`,
+        images: car.images?.map((img) => ({
+          url: img.url,
+          width: 800,
+          height: 600,
+        })),
+      },
+      twitter: {
+        card: "summary_large_image",
+        title: `${car.brand} ${car.model} (${car.year})`,
+        description: `Available now for ₹${car.price.toLocaleString()}`,
+        images: car.images?.[0]?.url ? [car.images[0].url] : [],
+      },
+    };
+  } catch (error) {
+    return {
+      title: "Error Loading Car",
+      description: "Unable to load car details at this time.",
+    };
+  }
+}
+
 export default async function CarPage({ params }) {
   const { id } = params;
   const carId = id.split("-").pop(); // Extract the actual ID from the slug
@@ -75,4 +120,3 @@ export default async function CarPage({ params }) {
 
   return <Car carData={carData} />;
 }
-  
