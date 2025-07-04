@@ -33,12 +33,12 @@ app.post("/api/auth/logout", (req, res) => {
   res.clearCookie("token", {
     httpOnly: true,
     sameSite: "None", // <-- must match how you set it
-    secure: false,
+    secure: true,
   });
   res.clearCookie("refreshToken", {
     httpOnly: true,
     sameSite: "None", // <-- must match how you set it
-    secure: false,
+    secure: true,
   });
   res.status(200).json({ message: "Logged out successfully" });
 });
