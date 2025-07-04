@@ -102,3 +102,14 @@ export const login = async (req, res, next) => {
     return res.status(500).json({ message: "Something went wrong." });
   }
 };
+
+export const getMe = (req, res) => {
+  if (!req.user) {
+    return res.status(401).json({ message: "Unauthorized" });
+  }
+  res.json({
+    id: req.user._id,
+    email: req.user.email,
+    fullName: req.user.fullName,
+  });
+};
