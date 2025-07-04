@@ -10,10 +10,15 @@ export const metadata = {
 };
 
 export default async function RootLayout({ children }) {
-  const cookieStore = await cookies(); // ✅ await it
-  const token = cookieStore.get("token");
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get("token");
 
-  if (!token) {
+    if (!token) {
+      redirect("/admin-login");
+    }
+  } catch (error) {
+    console.error("Cookie access error:", error);
     redirect("/admin-login");
   }
 

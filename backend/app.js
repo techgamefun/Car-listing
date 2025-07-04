@@ -18,6 +18,8 @@ app.use(
   cors({
     origin: process.env.CLIENT, // ✅ Your frontend's domain
     credentials: true, // ✅ Allow cookies/headers with credentials
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
 
@@ -32,13 +34,15 @@ app.use("/api/cars", carRoutes);
 app.post("/api/auth/logout", (req, res) => {
   res.clearCookie("token", {
     httpOnly: true,
-    sameSite: "None", // <-- must match how you set it
+    sameSite: "none", // <-- must match how you set it
     secure: true,
+    domain: undefined,
   });
   res.clearCookie("refreshToken", {
     httpOnly: true,
-    sameSite: "None", // <-- must match how you set it
+    sameSite: "none", // <-- must match how you set it
     secure: true,
+    domain: undefined,
   });
   res.status(200).json({ message: "Logged out successfully" });
 });
