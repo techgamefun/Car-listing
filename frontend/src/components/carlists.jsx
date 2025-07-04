@@ -10,7 +10,7 @@ export default function CarList() {
   const router = useRouter();
 
   const handleClick = (id) => {
-    router.push(`/${id}`);
+    router.push(`/cars/${id}`);
   };
 
   useEffect(() => {
@@ -74,7 +74,7 @@ export default function CarList() {
 
             <button
               onClick={() => {
-                handleClick(car._id);
+                handleClick(`${car.brand}-${car.model}-${car._id}`);
               }}
               className="mt-4 w-full bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium py-2 rounded-sm transition duration-200 ease-in-out shadow"
             >
