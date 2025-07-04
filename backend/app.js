@@ -14,7 +14,7 @@ app.use(morgan("dev"));
 
 app.use(
   cors({
-    origin: "http://localhost:3000", // ✅ Your frontend's domain
+    origin: process.env.CLIENT, // ✅ Your frontend's domain
     credentials: true, // ✅ Allow cookies/headers with credentials
   })
 );
