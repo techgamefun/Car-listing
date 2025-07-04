@@ -32,7 +32,12 @@ app.use("/api/cars", carRoutes);
 app.post("/api/auth/logout", (req, res) => {
   res.clearCookie("token", {
     httpOnly: true,
-    sameSite: "Strict",
+    sameSite: "None", // <-- must match how you set it
+    secure: process.env.NODE_ENV === "production",
+  });
+  res.clearCookie("refreshToken", {
+    httpOnly: true,
+    sameSite: "None", // <-- must match how you set it
     secure: process.env.NODE_ENV === "production",
   });
   res.status(200).json({ message: "Logged out successfully" });
