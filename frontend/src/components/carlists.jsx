@@ -10,7 +10,7 @@ export default function CarList() {
   const router = useRouter();
 
   const handleClick = (id) => {
-    router.push(`/cars/${id}`);
+    router.push(`/cars/${id.replace(/\s+/g, "-")}`);
   };
 
   useEffect(() => {
