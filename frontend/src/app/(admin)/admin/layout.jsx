@@ -3,6 +3,7 @@ import Link from "next/link";
 import Logout from "@/components/logoutBtn";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import AuthGuard from "@/components/AuthGuard";
 
 export const metadata = {
   title: "Admin Page",
@@ -10,20 +11,8 @@ export const metadata = {
 };
 
 export default async function RootLayout({ children }) {
-  try {
-    const cookieStore = await cookies();
-    const token = cookieStore.get("token");
-
-    if (!token) {
-      redirect("/admin-login");
-    }
-  } catch (error) {
-    console.error("Cookie access error:", error);
-    redirect("/admin-login");
-  }
-
   return (
-    <>
+    <AuthGuard>
       <div className="md:grid grid-cols-12 h-screen">
         <header className="md:col-span-2 ">
           {/* Desktop navbar */}
@@ -72,6 +61,6 @@ export default async function RootLayout({ children }) {
           {children}
         </div>
       </div>
-    </>
+    </AuthGuard>
   );
 }
