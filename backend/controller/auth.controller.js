@@ -28,7 +28,7 @@ export const register = async (req, res, next) => {
       .cookie("refreshToken", refreshToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production", // HTTPS only in production
-        sameSite: "Strict", // Or "Lax" depending on your use case
+        sameSite: "None", // Or "Lax" depending on your use case
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
       })
       .status(200)
