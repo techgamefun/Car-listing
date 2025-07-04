@@ -4,7 +4,15 @@ import { useRouter } from "next/navigation";
 
 export default function Logout() {
   const router = useRouter();
-  const handleLogout = () => {
+
+  const handleLogout = async () => {
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_BASE_URL}/auth/logout`,
+      {
+        method: "POST",
+        credentials: "include", // required to send cookie
+      }
+    );
     localStorage.removeItem("token");
     router.push("/admin-login");
   };

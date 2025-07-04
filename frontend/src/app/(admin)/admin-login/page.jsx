@@ -19,8 +19,9 @@ export default function Login() {
     try {
       const response = await API.post("/auth/login", data);
 
+      console.log(response);
+
       router.push("/admin/dashboard");
-      // TODO: redirect or save token
     } catch (err) {
       console.error("Login failed:", err);
       setApiError(

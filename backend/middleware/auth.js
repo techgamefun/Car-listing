@@ -2,26 +2,21 @@ import jwt from "jsonwebtoken";
 import User from "../model/user.model.js";
 
 export const authenticate = async (req, res, next) => {
-  const authHeader = req.headers.authorization;
-  console.log(authHeader);
+  const token = req.cookies?.token; // ✅ Read from cookies
 
-  if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    return res
-      .status(401)
-      .json({ message: "Authorization token missing or invalid." });
+  if (!token) {
+    return res.status(401).json({ message: "Authentication token missing." });
   }
 
-  const token = authHeader.split(" ")[1];
-
   try {
-    const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET); // or your key
+    const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
     const user = await User.findById(decoded.id).select("-password");
 
     if (!user) {
       return res.status(401).json({ message: "User not found." });
     }
 
-    req.user = user; // make user available to route
+    req.user = user;
     next();
   } catch (error) {
     console.error("Auth error:", error);
